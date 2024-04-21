@@ -1,48 +1,128 @@
 package com.ubb.backend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.ubb.backend.repository.EventRepository;
+
+import com.github.javafaker.Faker;
 import com.ubb.backend.exceptions.EventValidatorException;
-import com.ubb.backend.model.Event;
+import com.ubb.backend.model.events.Event;
+import com.ubb.backend.repository.EventRepository;
 
-
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
 public class EventService {
 
-    
+    private final EventRepository eventRepo;
+
+     private final SimpMessagingTemplate messagingTemplate;
+
     @Autowired
-    private EventRepository eventRepo;
+    public EventService(EventRepository eventRepository, SimpMessagingTemplate messagingTemplate) {
+        this.eventRepo = eventRepository;
+        this.messagingTemplate = messagingTemplate;
+    }
+    
+     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+     private final Faker faker = new Faker();
+    
 
     public List<Event> getAllEvents()
     {
-        return eventRepo.getAll();
+        return eventRepo.findAll();
+    }
+    public Page<Event> getAllEventsByHostId(Long hostId)
+    {
+        PageRequest pageable = PageRequest.of(0, (int)eventRepo.countByHostId(hostId));
+        return eventRepo.findAllByHostId(hostId, pageable);
     }
 
-    public Event getEventById(UUID id) throws Exception
+    public Optional<Event> getEventById(Long id) throws Exception
     {
-        return eventRepo.getEventById(id);
+        return eventRepo.findById(id);
     }
 
     public void addEvent(Event event) throws EventValidatorException
     {
-        eventRepo.add(event);
+        eventRepo.save(event);
     }
-    public void updateEvent(UUID id, Event event) throws EventValidatorException{
-       eventRepo.update(id, event);
+    public Event updateEvent(Long eventId, Event eventDetails) throws EventValidatorException{
+        Optional<Event> optionalEvent = eventRepo.findById(eventId);
+        if (optionalEvent.isPresent()) {
+            Event existingEvent = optionalEvent.get();
+            existingEvent.setEventName(eventDetails.getEventName());
+            existingEvent.setEventDate(eventDetails.getEventDate());
+            existingEvent.setEventLocation(eventDetails.getEventLocation());
+            return eventRepo.save(existingEvent);
+        } else {
+            // Handle not found scenario
+            return null;
+        }
     }
-    public void deleteEvent(UUID id)
+    public void deleteEvent(Long id)
     {
         eventRepo.deleteById(id);
     }
 
-    public List<Event> getPage(int pageId, boolean isAscending, int pageSize) {
-        return this.eventRepo.getPage(pageId, isAscending, pageSize);
+//    public List<Event> getAllByHostId(Long hostId)
+//    {
+//        PageRequest pageable = PageRequest.of(0,this)
+//       return this.eventRepo.findAllByHostId(hostId);
+//    }
+    public List<Event> getPage(Long hostId,int pageId, boolean isAscending, int pageSize) {
+        PageRequest pageable = PageRequest.of(pageId, pageSize);
+        Page<Event> page;
+        if (isAscending) {
+            pageable = pageable.withSort(Sort.by("eventName").ascending());
+        } else {
+            pageable = pageable.withSort(Sort.by("eventName").descending());
+        }
+        page = this.eventRepo.findAllByHostId(hostId, pageable);
+        return page.getContent();
     }
+  
+    
+ @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS) // Run every 5 seconds
+ @Async
+ public void addNewEvents(){
+
+         String eventName = faker.lorem().word(); // Generate a random event name using Faker
+         LocalDate date = faker.date().birthday().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(); // Generate a random date using Faker
+         String location = faker.address().city(); // Generate a random location using Faker
+
+         Event newEvent = new Event();
+        
+//         try{
+//             this.addEvent(newEvent);
+             System.out.println("New event added: " + newEvent.toString());
+//              messagingTemplate.convertAndSend("/topic/events","NEW EVENT SIGNAL");
+//             System.out.println("Message sent: " + newEvent.toString());
+            
+//         }
+//         catch(EventValidatorException err)
+//         {
+//             System.out.println("Error " + err.getMessage());
+//         }
+//
+        
+
+    
+
+
+ }
+
 
 }

@@ -1,4 +1,4 @@
-package com.ubb.backend.model;
+package com.ubb.backend.model.events;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

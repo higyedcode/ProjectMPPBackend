@@ -13,6 +13,10 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost:3000") // Specify the allowed origin (frontend URL)
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE") // Specify the allowed HTTP methods
                 .allowedHeaders("*"); // Specify the allowed headers
+        registry.addMapping("/api/hosts/**") // Define the mapping path for which CORS should be enabled
+                .allowedOrigins("http://localhost:3000") // Specify the allowed origin (frontend URL)
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE") // Specify the allowed HTTP methods
+                .allowedHeaders("*"); // Specify the allowed headers
         
     }
 }
