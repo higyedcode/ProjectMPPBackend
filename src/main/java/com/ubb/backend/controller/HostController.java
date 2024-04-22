@@ -69,7 +69,7 @@ public class HostController {
     }
 
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Host> updateHost(@PathVariable Long id, @RequestBody Host Host) {
         try {
             Host updatedHost = hostService.updateHost(id, Host);

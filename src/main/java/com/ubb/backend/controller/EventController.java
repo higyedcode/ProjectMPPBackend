@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
+import static java.io.Console.*;
 
 
 @RestController
@@ -86,12 +86,12 @@ public class EventController {
 
 
 
-    @PostMapping
-    public ResponseEntity<String> addEvent(@RequestBody Event event)
+    @PostMapping("/{hostId}")
+    public ResponseEntity<String> addEvent(@RequestBody Event event, @PathVariable Long hostId)
     {
         try{
-            
-            eventService.addEvent(event);
+
+            eventService.addEvent(event, hostId);
             return ResponseEntity.ok().body("Event added successfully");
         }
         catch (EventValidatorException e)

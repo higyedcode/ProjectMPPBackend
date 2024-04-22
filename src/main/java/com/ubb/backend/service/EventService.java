@@ -1,5 +1,7 @@
 package com.ubb.backend.service;
 
+import com.ubb.backend.model.hosts.Host;
+import com.ubb.backend.repository.HostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,13 +29,15 @@ import java.util.concurrent.TimeUnit;
 public class EventService {
 
     private final EventRepository eventRepo;
+    private final HostRepository hostRepository;
 
      private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired
-    public EventService(EventRepository eventRepository, SimpMessagingTemplate messagingTemplate) {
+    public EventService(EventRepository eventRepository, HostRepository hostRepository, SimpMessagingTemplate messagingTemplate) {
         this.eventRepo = eventRepository;
         this.messagingTemplate = messagingTemplate;
+        this.hostRepository = hostRepository;
     }
     
      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -55,9 +59,17 @@ public class EventService {
         return eventRepo.findById(id);
     }
 
-    public void addEvent(Event event) throws EventValidatorException
+    public void addEvent(Event event, Long hostId) throws EventValidatorException
     {
+        Optional<Host> host = hostRepository.findById(hostId);
+        if(host.isPresent())
+        {
+
+            event.setHost(host.get());
+        }
+
         eventRepo.save(event);
+
     }
     public Event updateEvent(Long eventId, Event eventDetails) throws EventValidatorException{
         Optional<Event> optionalEvent = eventRepo.findById(eventId);
@@ -107,7 +119,7 @@ public class EventService {
         
 //         try{
 //             this.addEvent(newEvent);
-             System.out.println("New event added: " + newEvent.toString());
+//             System.out.println("New event added: " + newEvent.toString());
 //              messagingTemplate.convertAndSend("/topic/events","NEW EVENT SIGNAL");
 //             System.out.println("Message sent: " + newEvent.toString());
             
