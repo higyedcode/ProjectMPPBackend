@@ -1,6 +1,7 @@
 package com.ubb.backend.controller;
 
 
+import com.github.javafaker.Faker;
 import com.ubb.backend.model.events.Event;
 import com.ubb.backend.model.hosts.Host;
 import com.ubb.backend.service.HostService;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,6 +23,7 @@ public class HostController {
     public HostController(HostService hostService){
         this.hostService = hostService;
     }
+
 
     @GetMapping
     public List<Host> getAllHosts() {
