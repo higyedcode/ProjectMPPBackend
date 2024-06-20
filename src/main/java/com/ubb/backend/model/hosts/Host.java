@@ -2,16 +2,11 @@ package com.ubb.backend.model.hosts;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ubb.backend.model.Role;
 import com.ubb.backend.model.events.Event;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 
 
@@ -32,6 +27,10 @@ public class Host {
     @Column(name = "name")
     private String name;
 
+    @JsonIgnore
+    @Column(name = "password")
+    private String password;
+
     @Column(name = "email")
     private String email;
 
@@ -43,8 +42,17 @@ public class Host {
 
     @Column(name="socialMediaLink")
     private String socialMediaLink;
+
+    @Column(name="role")
+    @Enumerated(EnumType.STRING)
+    private Role role;
     
-    @OneToMany(mappedBy = "host", fetch=FetchType.EAGER, cascade = CascadeType.REMOVE)
-    private List<Event> events;
+//    @OneToMany(mappedBy = "host", fetch=FetchType.EAGER, cascade = CascadeType.REMOVE)
+//    private List<Event> events;
+
+//    public int countEvents()
+//    {
+//        return events != null ? events.size() : 0;
+//    }
 
 }

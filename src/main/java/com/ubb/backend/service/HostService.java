@@ -1,5 +1,6 @@
 package com.ubb.backend.service;
 
+import com.ubb.backend.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,10 +33,20 @@ public class HostService {
         return hostRepository.findById(id);
     }
 
+    public Optional<Host> getHostByEmail(String email) {
+        return hostRepository.findByEmail(email);
+    }
+
     public Host createHost(Host Host) {
         return hostRepository.save(Host);
     }
 
+    public Host updateHostRole(Long id, Role role) {
+        return hostRepository.findById(id).map(Host -> {
+            Host.setRole(role);
+            return hostRepository.save(Host);
+        }).orElse(null);
+    }
     public Host updateHost(Long id, Host newHostData) {
         return hostRepository.findById(id).map(Host -> {
             Host.setName(newHostData.getName());

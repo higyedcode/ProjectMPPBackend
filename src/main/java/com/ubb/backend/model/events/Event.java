@@ -32,6 +32,12 @@ public class Event {
     @Column(name = "location")
     private String eventLocation;
 
+    @Column(name="longitude")
+    private Double longitude;
+
+    @Column(name="latitude")
+    private Double latitude;
+
     @ManyToOne
     @JoinColumn(name="host_id", nullable = false)
     @JsonIgnore
